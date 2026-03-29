@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray's List</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #f5a623;
+    --red: #e8441a;
+    --green: #4caf50;
+    --text: #e8e8e8;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+
+header {
+background: var(–surface);
+border-bottom: 2px solid var(–accent);
+padding: 16px 28px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: ‘IBM Plex Mono’, monospace; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.1em; color: var(–accent); }
+.logo span { color: var(–text); }
+.stats { display: flex; gap: 20px; font-family: ‘IBM Plex Mono’, monospace; font-size: 0.72rem; color: var(–muted); }
+.stats b { color: var(–accent); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 24px; }
+
+.upload-zone {
+background: var(–surface);
+border: 2px dashed var(–border);
+border-radius: 6px;
+padding: 36px;
+text-align: center;
+transition: border-color 0.2s, background 0.2s;
+cursor: pointer;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(–accent); background: rgba(245,166,35,0.04); }
+.upload-zone .icon { font-size: 2.2rem; margin-bottom: 10px; }
+.upload-zone h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 6px; }
+.upload-zone p { font-size: 0.78rem; color: var(–muted); }
+#fileInput { display: none; }
+
+.modal-bg {
+position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+z-index: 200; display: none; align-items: center; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+background: var(–surface);
+border: 1px solid var(–border);
+border-top: 3px solid var(–accent);
+border-radius: 6px;
+padding: 28px;
+width: 460px; max-width: 95vw;
+display: flex; flex-direction: column; gap: 16px;
+}
+.modal h2 { font-family: ‘IBM Plex Mono’, monospace; font-size: 0.95rem; color: var(–accent); }
+.modal-filename { font-size: 0.75rem; color: var(–muted); font-family: ‘IBM Plex Mono’, monospace; background: var(–surface2); padding: 6px 10px; border-radius: 3px; word-break: break-all; }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-family: ‘IBM Plex Mono’, monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(–muted); }
+.form-group input {
+background: var(–bg); border: 1px solid var(–border); border-radius: 3px;
+color: var(–text); font-family: ‘IBM Plex Sans’, sans-serif; font-size: 0.85rem;
+padding: 9px 12px; transition: border-color 0.2s;
+}
+.form-group input:focus { outline: none; border-color: var(–accent); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.btn {
+display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+padding: 10px 18px; border-radius: 3px; border: none;
+font-family: ‘IBM Plex Mono’, monospace; font-size: 0.75rem; font-weight: 600;
+letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary { background: var(–accent); color: #000; }
+.btn-primary:hover { background: #ffb940; }
+.btn-ghost { background: transparent; color: var(–muted); border: 1px solid var(–border); }
+.btn-ghost:hover { border-color: var(–accent); color: var(–accent); }
+.btn-danger { background: transparent; color: var(–red); border: 1px solid transparent; padding: 6px 10px; font-size: 0.7rem; }
+.btn-danger:hover { border-color: var(–red); }
+.btn-sm { padding: 6px 12px; font-size: 0.7rem; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+.search-row { display: flex; gap: 12px; align-items: center; }
+.search-wrap { position: relative; flex: 1; }
+.search-wrap span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(–muted); }
+.search-input {
+width: 100%; background: var(–surface); border: 1px solid var(–border);
+border-radius: 3px; color: var(–text); font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 0.88rem; padding: 11px 14px 11px 36px; transition: border-color 0.2s;
+}
+.search-input:focus { outline: none; border-color: var(–accent); }
+.search-input::placeholder { color: var(–muted); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 5px;
+padding: 18px;
+display: flex; flex-direction: column; gap: 12px;
+transition: border-color 0.2s, transform 0.15s;
+}
+.card:hover { border-color: var(–accent); transform: translateY(-2px); }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-name { font-weight: 600; font-size: 0.9rem; line-height: 1.3; flex: 1; }
+.card-sku {
+font-family: ‘IBM Plex Mono’, monospace; font-size: 0.7rem;
+color: var(–accent); background: rgba(245,166,35,0.1);
+padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+}
+.card-meta { display: flex; flex-direction: column; gap: 4px; }
+.card-meta-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(–muted); }
+.card-meta-row span:last-child { color: var(–text); font-family: ‘IBM Plex Mono’, monospace; font-size: 0.72rem; }
+.card-actions { display: flex; gap: 6px; margin-top: 4px; }
+.card-actions .btn { flex: 1; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(–muted); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.3; }
+.empty-state p { font-size: 0.88rem; line-height: 1.7; }
+
+.viewer-bg {
+position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+z-index: 300; display: none; flex-direction: column;
+}
+.viewer-bg.open { display: flex; }
+.viewer-header {
+background: var(–surface); border-bottom: 1px solid var(–border);
+padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.viewer-title { font-family: ‘IBM Plex Mono’, monospace; font-size: 0.85rem; color: var(–accent); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-actions { display: flex; gap: 8px; flex-shrink: 0; }
+iframe { flex: 1; border: none; background: #fff; }
+
+.toast {
+position: fixed; bottom: 24px; right: 24px;
+background: #f5a623; color: #000;
+font-family: ‘IBM Plex Mono’, monospace; font-size: 0.78rem; font-weight: 600;
+padding: 12px 20px; border-radius: 3px;
+opacity: 0; transform: translateY(8px); transition: all 0.2s;
+pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">RAY'S <span>LIST</span></div>
+  <div class="stats"><span>LISTINGS: <b id="statTotal">0</b></span></div>
+</header>
+
+<div class="container">
+
+  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📄</div>
+    <h3>Drop PDF listings here or click to upload</h3>
+    <p>Upload multiple files at once — you'll tag each one with a name and SKU</p>
+    <input type="file" id="fileInput" accept=".pdf" multiple onchange="handleFiles(this.files)">
+  </div>
+
+  <div class="search-row">
+    <div class="search-wrap">
+      <span>🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search by item name or SKU..." oninput="render()">
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="exportBackup()">↓ Backup</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importInput').click()">↑ Restore</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importBackup(event)">
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📋</div>
+    <p>No listings saved yet.<br>Upload your approved PDF listings above to get started.</p>
+  </div>
+
+</div>
+
+<!-- TAG MODAL -->
+
+<div class="modal-bg" id="tagModal">
+  <div class="modal">
+    <h2>TAG THIS LISTING</h2>
+    <div class="modal-filename" id="tagFilename"></div>
+    <div class="form-group">
+      <label>ITEM NAME</label>
+      <input type="text" id="tagName" placeholder="e.g. 12x8 Standard CMU">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>SKU #</label>
+        <input type="text" id="tagSku" placeholder="123456">
+      </div>
+      <div class="form-group">
+        <label>APPROVAL DATE</label>
+        <input type="date" id="tagDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>PRICE</label>
+        <input type="text" id="tagPrice" placeholder="$4.99">
+      </div>
+      <div class="form-group">
+        <label>CATEGORY</label>
+        <input type="text" id="tagCat" placeholder="CMU, Roofing...">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="skipTag()">Skip</button>
+      <button class="btn btn-primary" onclick="saveTag()">💾 Save Listing</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF VIEWER -->
+
+<div class="viewer-bg" id="viewerBg">
+  <div class="viewer-header">
+    <div class="viewer-title" id="viewerTitle"></div>
+    <div class="viewer-actions">
+      <button class="btn btn-primary btn-sm" onclick="printViewer()">🖨 Print</button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadViewer()">↓ Download</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeViewer()">✕ Close</button>
+    </div>
+  </div>
+  <iframe id="viewerFrame"></iframe>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let listings = JSON.parse(localStorage.getItem('rayslist_v2') || '[]');
+  let pendingFiles = [];
+  let pendingIndex = 0;
+  let currentViewerData = null;
+  let currentViewerName = null;
+  let db;
+
+  // IndexedDB for PDF storage
+  const dbReady = new Promise((resolve, reject) => {
+    const req = indexedDB.open('RaysListDB', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('pdfs', { keyPath: 'id' });
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = reject;
+  });
+
+  const savePDF = (id, data) => new Promise((res, rej) => {
+    const tx = db.transaction('pdfs', 'readwrite');
+    tx.objectStore('pdfs').put({ id, data });
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+
+  const getPDF = (id) => new Promise((res, rej) => {
+    const tx = db.transaction('pdfs', 'readonly');
+    const req = tx.objectStore('pdfs').get(id);
+    req.onsuccess = () => res(req.result?.data || null);
+    req.onerror = rej;
+  });
+
+  const deletePDF = (id) => new Promise((res, rej) => {
+    const tx = db.transaction('pdfs', 'readwrite');
+    tx.objectStore('pdfs').delete(id);
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+
+  function saveMeta() { localStorage.setItem('rayslist_v2', JSON.stringify(listings)); }
+
+  function showToast(msg, err = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = err ? '#e8441a' : '#f5a623';
+    t.style.color = err ? '#fff' : '#000';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // Drag & drop
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+
+  function handleFiles(files) {
+    pendingFiles = Array.from(files).filter(f => f.type === 'application/pdf');
+    if (!pendingFiles.length) { showToast('No PDF files found', true); return; }
+    pendingIndex = 0;
+    showTagModal();
+  }
+
+  function showTagModal() {
+    if (pendingIndex >= pendingFiles.length) {
+      document.getElementById('tagModal').classList.remove('open');
+      render();
+      showToast(`✓ ${pendingFiles.length} listing${pendingFiles.length > 1 ? 's' : ''} saved`);
+      pendingFiles = [];
+      return;
+    }
+    const file = pendingFiles[pendingIndex];
+    document.getElementById('tagFilename').textContent = file.name;
+    document.getElementById('tagDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('tagPrice').value = '';
+    document.getElementById('tagCat').value = '';
+
+    // Auto-parse filename for SKU and name
+    const base = file.name.replace(/\.pdf$/i, '').replace(/[_-]/g, ' ').trim();
+    const skuMatch = base.match(/\b(\d{5,7})\b/);
+    document.getElementById('tagSku').value = skuMatch ? skuMatch[1] : '';
+    document.getElementById('tagName').value = skuMatch ? base.replace(skuMatch[1], '').replace(/\s+/g, ' ').trim() : base;
+
+    document.getElementById('tagModal').classList.add('open');
+    setTimeout(() => document.getElementById('tagName').focus(), 100);
+  }
+
+  async function saveTag() {
+    const file = pendingFiles[pendingIndex];
+    const name = document.getElementById('tagName').value.trim() || file.name.replace(/\.pdf$/i, '');
+    const sku = document.getElementById('tagSku').value.trim();
+    const date = document.getElementById('tagDate').value;
+    const price = document.getElementById('tagPrice').value.trim();
+    const category = document.getElementById('tagCat').value.trim();
+    const id = Date.now() + pendingIndex;
+
+    const reader = new FileReader();
+    reader.onload = async e => {
+      await savePDF(id, e.target.result);
+      listings.push({ id, name, sku, date, price, category, filename: file.name });
+      saveMeta();
+      pendingIndex++;
+      showTagModal();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function skipTag() { pendingIndex++; showTagModal(); }
+
+  async function viewListing(id) {
+    const l = listings.find(x => x.id === id);
+    const data = await getPDF(id);
+    if (!data) { showToast('PDF not found', true); return; }
+    currentViewerData = data;
+    currentViewerName = l.filename || l.name + '.pdf';
+    document.getElementById('viewerTitle').textContent = l.name + (l.sku ? '   —   SKU: ' + l.sku : '');
+    document.getElementById('viewerFrame').src = data;
+    document.getElementById('viewerBg').classList.add('open');
+  }
+
+  function closeViewer() {
+    document.getElementById('viewerBg').classList.remove('open');
+    document.getElementById('viewerFrame').src = '';
+  }
+
+  function printViewer() { document.getElementById('viewerFrame').contentWindow.print(); }
+
+  function downloadViewer() {
+    const a = document.createElement('a');
+    a.href = currentViewerData;
+    a.download = currentViewerName;
+    a.click();
+  }
+
+  async function downloadSingle(id) {
+    const l = listings.find(x => x.id === id);
+    const data = await getPDF(id);
+    if (!data) { showToast('PDF not found', true); return; }
+    const a = document.createElement('a');
+    a.href = data; a.download = l.filename || l.name + '.pdf'; a.click();
+  }
+
+  async function deleteListing(id) {
+    if (!confirm('Remove this listing?')) return;
+    await deletePDF(id);
+    listings = listings.filter(l => l.id !== id);
+    saveMeta(); render();
+    showToast('Listing removed');
+  }
+
+  function render() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = listings.filter(l =>
+      (l.name + ' ' + l.sku + ' ' + l.category + ' ' + l.price).toLowerCase().includes(q)
+    );
+
+    document.getElementById('statTotal').textContent = listings.length;
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('emptyState');
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      grid.innerHTML = filtered.map(l => `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-name">${l.name || '—'}</div>
+            ${l.sku ? `<div class="card-sku">${l.sku}</div>` : ''}
+          </div>
+          <div class="card-meta">
+            ${l.price ? `<div class="card-meta-row"><span>Price</span><span>${l.price}</span></div>` : ''}
+            ${l.category ? `<div class="card-meta-row"><span>Category</span><span>${l.category}</span></div>` : ''}
+            ${l.date ? `<div class="card-meta-row"><span>Approved</span><span>${l.date}</span></div>` : ''}
+            <div class="card-meta-row"><span>File</span><span style="font-size:0.68rem;color:var(--muted)">${l.filename || '—'}</span></div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-sm" onclick="viewListing(${l.id})">View / Print</button>
+            <button class="btn btn-ghost btn-sm" onclick="downloadSingle(${l.id})">↓</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteListing(${l.id})">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  async function exportBackup() {
+    const backup = { meta: listings, pdfs: {} };
+    for (const l of listings) {
+      const data = await getPDF(l.id);
+      if (data) backup.pdfs[l.id] = data;
+    }
+    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `rays-list-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    showToast('Backup saved');
+  }
+
+  function importBackup(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      try {
+        const backup = JSON.parse(ev.target.result);
+        if (backup.meta && backup.pdfs) {
+          for (const id in backup.pdfs) await savePDF(Number(id), backup.pdfs[id]);
+          const newItems = backup.meta.filter(m => !listings.find(l => l.id === m.id));
+          listings = [...listings, ...newItems];
+          saveMeta(); render();
+          showToast(`Restored ${newItems.length} listing${newItems.length !== 1 ? 's' : ''}`);
+        }
+      } catch { showToast('Invalid backup file', true); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  // Enter key in tag modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('tagModal').classList.contains('open')) saveTag();
+    if (e.key === 'Escape') {
+      if (document.getElementById('viewerBg').classList.contains('open')) closeViewer();
+    }
+  });
+
+  dbReady.then(() => render());
+</script>
+
+</body>
+</html>
