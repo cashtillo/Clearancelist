@@ -1,11 +1,3 @@
 {
-  "listings": [
-    {
-      "id": "TEST-001",
-      "name": "Test Item Clearance",
-      "sku": "SKU-TEST-001",
-      "type": "clearance",
-      "pdfId": "TEST-001"
-    }
-  ]
+  "listings": []
 }
