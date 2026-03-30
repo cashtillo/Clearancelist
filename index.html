@@ -200,6 +200,9 @@ iframe{flex:1;border:none;background:#fff;}
   .audit-original{display:none!important;}
   .audit-checkbox{width:13px;height:13px;border:1.5px solid #999;border-radius:2px;}
 }
+
+/* GITHUB SYNC */
+.badge-github{background:rgba(76,175,80,.12);color:var(--green);border:1px solid rgba(76,175,80,.3);}
 </style>
 </head>
 <body>
@@ -211,7 +214,7 @@ iframe{flex:1;border:none;background:#fff;}
     <div class="header-right">
       <div class="stats">ITEMS: <b id="statTotal">0</b> &nbsp;|&nbsp; SHOWING: <b id="statShowing">0</b></div>
       <button class="audit-btn" onclick="openPinModal()">&#128203; Audit Mode</button>
-      <button class="help-btn" onclick="openHelp()" title="Help">?</button>
+<button class="help-btn" onclick="openHelp()" title="Help">?</button>
     </div>
   </header>
 
@@ -439,10 +442,16 @@ const BUILT_IN_PDFS = {"raysLabel": "data:application/pdf;base64,JVBERi0xLjcKJcf
 const BUILT_IN_LISTINGS = [{"name": "Double 4\" Steel Lap Siding", "sku": "1550114", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "2x4 Fire Retardant - Interior", "sku": "1141010", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "Georgia-Pacific DryGuard 3/4\"", "sku": "1242878", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "9' Lifetime Steel Post - Black", "sku": "1715338", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "CedarBoards Single 12\" x 10' Board", "sku": "1480844", "type": "label", "pdf": "raysLabel", "page": 1}, {"name": "Cut to Length Designer Pro-Rib Matt $22", "sku": "1558398", "type": "label", "pdf": "raysLabel", "page": 1}, {"name": "UltraDeck Fusion Low-Maintenance Composite", "sku": "1000054", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "12x8x16 Split Face Construction Block", "sku": "1796300", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "ABTCO 12'6\" Snap-On Vinyl Crown Moulding", "sku": "1461622", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "12'6\" Double 4\" Steel Lap Siding", "sku": "1550125", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "Cut to Length Designer Pro-Rib Matt $13", "sku": "1558398", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "4x10 #1 Better S4S Douglas Fir Timber", "sku": "1022696", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "Yardworks Richmond 5x5 White Ash Post Cap", "sku": "1728682", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "Novik 20-1/4\" x 45-3/8\" Stacked Stone", "sku": "1467859", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "8' Black Plastic Lumber", "sku": "1129978", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "TimberCrest Single 7\" x 12'4\" Plank", "sku": "1462522", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "LP SmartSide 3/8 x 16' Brushed Panel", "sku": "1422234", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "Novik Single 7\" x 8' Cedar Shake Panel", "sku": "1469918", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "Restoration Smooth Double 4-1/2\"", "sku": "148-1782", "type": "bintag", "pdf": "raysBintags", "page": 0}, {"name": "Williams Preassembled Aluminum Railing", "sku": "171-7809", "type": "bintag", "pdf": "raysBintags", "page": 0}, {"name": "Spectra Metals 3\"x4\" A-Style Aluminum", "sku": "158-8136", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Pure Glory 44\"x29\" Cast Iron Railing", "sku": "171-7551", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Williams Preassembled Powder-Coated 171-7815", "sku": "171-7815", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Williams 3x3x42\" Aluminum Deck Post", "sku": "171-7829", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "10' Steel Sliding Door Track Cover", "sku": "155-5842", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Suncast 1-1/2\"H x 15\"x15\" Corner Shelf", "sku": "193-2826", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9258", "sku": "112-9258", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Composite 9260", "sku": "112-9260", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic Composite Post Sleeve 9208", "sku": "112-9208", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Williams Preassembled Powder-Coated 171-7803", "sku": "171-7803", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9269", "sku": "112-9269", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Williams Preassembled Powder-Coated 171-7816", "sku": "171-7816", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Gutter Guards", "sku": "100-0054", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "DuraMax YardMate Plus 5x5-1/2x6 Shed", "sku": "193-7142", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck 6'x34\" Black Stair Steel Rod", "sku": "171-0954", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck 6'x34\" Black Level Steel Horiz.", "sku": "171-0950", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic Composite Post Sleeve 9136", "sku": "112-9136", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic Composite Post Sleeve 9125", "sku": "112-9125", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic 36\"x6' Composite 9239", "sku": "112-9239", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "Sequoia Select Double 4-1/2\" x 12'1\"", "sku": "148-9151", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "Dixie-Pacific DuraCast Tuscan Column", "sku": "185-4419", "type": "bintag", "pdf": "raysBintags", "page": 5}, {"name": "UltraDeck Rosewood 8' Composite Railing", "sku": "112-9160", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9247", "sku": "112-9247", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "UltraDeck Classic Composite Post Sleeve 9174", "sku": "112-9174", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "12' Residential Rake Trim", "sku": "156-4040", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "Spectra Metals 3\"x4\" B-Style Aluminum", "sku": "158-8139", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "Deckorators Newport Cedar High Pyramid", "sku": "100-0054", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "TimberCrest Premium Double 4\" x 1", "sku": "146-2948", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "UltraDeck Classic Composite Post Sleeve 9184", "sku": "112-9184", "type": "bintag", "pdf": "raysBintags_3", "page": 2}, {"name": "8' Plastic Lattice H Channel", "sku": "112-4708", "type": "bintag", "pdf": "raysBintags_3", "page": 2}];
 
 var allListingsCache = [];
-function getAllListings() {
-  var built = BUILT_IN_LISTINGS.map(function(l,i){ return Object.assign({},l,{_idx:i,uploaded:false}); });
-  var up = uploadedListings.map(function(l,i){ return Object.assign({},l,{_idx:100000+i,uploaded:true}); });
-  allListingsCache = built.concat(up);
+var githubListings=[];
+var GITHUB_REPO='cashtillo/Clearancelist';
+var GITHUB_API='https://api.github.com';
+// Cloudflare Worker URL — update this after deploying your Worker
+var WORKER_URL='https://clearancelist-sync.cashtillo.workers.dev/sync';
+function getAllListings(){
+  var built=BUILT_IN_LISTINGS.map(function(l,i){return Object.assign({},l,{_idx:i,uploaded:false});});
+  var gh=githubListings.map(function(l,i){return Object.assign({},l,{_idx:200000+i,uploaded:false,fromGitHub:true});});
+  var up=uploadedListings.map(function(l,i){return Object.assign({},l,{_idx:100000+i,uploaded:true});});
+  allListingsCache=built.concat(gh).concat(up);
   return allListingsCache;
 }
 function getByIdx(idx) { return allListingsCache.find(function(l){return l._idx===idx;}); }
@@ -475,6 +484,7 @@ async function init(){
   await dbReady;
   uploadedListings=await idbGetAll('listings');
   render();
+  fetchGitHubListings();
 }
 
 /* DRAG & DROP */
@@ -529,17 +539,21 @@ async function saveUpload(){
   var id='upload_'+Date.now();
   var reader=new FileReader();
   reader.onload=async function(e){
-    await idbPut('pdfs',{id:id,data:e.target.result});
+    var pdfDataUrl=e.target.result;
+    await idbPut('pdfs',{id:id,data:pdfDataUrl});
     await idbPut('listings',{id:id,name:name,sku:sku,type:type,pdf:id,page:0,uploaded:true});
     uploadedListings=await idbGetAll('listings');
     document.getElementById('tagModal').classList.remove('open');
     document.getElementById('fileInput').value='';
     pendingFile=null;
     render();
-    // Show success screen
-    document.getElementById('successItem').innerHTML=
-      '<div class="si-name">'+name+'</div><div class="si-sku">SKU: '+sku+'</div>';
+    document.getElementById('successItem').innerHTML='<div class="si-name">'+name+'</div><div class="si-sku">SKU: '+sku+'</div>';
     document.getElementById('successModal').classList.add('open');
+    showToast('Saved — syncing to all devices...');
+    pushToWorker({id:id,name:name,sku:sku,type:type},pdfDataUrl).then(function(ok){
+      if(ok){showToast('Synced! Available on all devices ✓');fetchGitHubListings();}
+      else{showToast('Saved locally — sync unavailable right now',false);}
+    });
   };
   reader.readAsDataURL(pendingFile);
 }
@@ -650,7 +664,8 @@ function render(){
       '<div class="card-badges">' +
         '<div class="badge '+(l.type==='label'?'badge-label':'badge-bintag')+'">'+(l.type==='label'?'&#127991; LABEL':'&#128722; BIN TAG')+'</div>' +
         (isSold?'<div class="badge badge-soldout">&#128683; SOLD OUT</div>':'') +
-        (l.uploaded?'<div class="badge badge-uploaded">&#8679; UPLOADED</div>':'') +
+        (l.uploaded?'<div class="badge badge-uploaded">&#8679; UPLOADED</div>':'') + +
+        (l.fromGitHub?'<div class="badge badge-github">&#9729; SYNCED</div>':'') +
       '</div>' +
       '<div class="card-name">'+l.name+'</div>' +
       '<div class="card-sku">SKU: '+l.sku+'</div>' +
@@ -694,7 +709,13 @@ async function openViewer(idx){
   var l=getByIdx(idx);
   if(!l)return;
   var src;
-  if(l.uploaded){
+  if(l.fromGitHub&&l.pdfId){
+    showToast('Loading PDF...');
+    try{
+      var pdfBase64=await fetch('https://cashtillo.github.io/Clearancelist/pdfs/'+l.pdfId+'.b64?t='+Date.now()).then(function(r){return r.text();});
+      src='data:application/pdf;base64,'+pdfBase64.trim();
+    }catch(e){showToast('Could not load PDF',true);return;}
+  }else if(l.uploaded){
     var stored=await idbGet('pdfs',l.id);
     if(!stored){showToast('PDF not found',true);return;}
     src=stored.data+'#page='+(l.page+1);
@@ -720,6 +741,43 @@ function showToast(msg,err){
   var t=document.getElementById('toast');
   t.textContent=msg;t.style.background=err?'#e8441a':'#f5a623';t.style.color=err?'#fff':'#000';
   t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+/* GITHUB SYNC FUNCTIONS */
+async function fetchGitHubListings(){
+  try{
+    var r=await fetch('https://cashtillo.github.io/Clearancelist/listings.json?t='+Date.now());
+    if(!r.ok)return;
+    var data=await r.json();
+    githubListings=(data.listings||[]).filter(function(l){
+      return !BUILT_IN_LISTINGS.some(function(b){return b.sku===l.sku;});
+    });
+    allListingsCache=[];render();
+  }catch(e){console.log('No GitHub listings file yet');}
+}
+async function pushToWorker(listing,pdfDataUrl){
+  // WORKER_URL must be set to your deployed Cloudflare Worker URL
+  if(!WORKER_URL||WORKER_URL.indexOf('YOUR-SUBDOMAIN')>-1){
+    console.warn('Cloudflare Worker not configured — skipping sync');
+    return false;
+  }
+  try{
+    var pdfBase64=pdfDataUrl?pdfDataUrl.split(',')[1].replace(/\s/g,''):null;
+    var res=await fetch(WORKER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({listing:listing,pdfBase64:pdfBase64})
+    });
+    if(!res.ok){
+      var err=await res.json().catch(function(){return{error:'unknown'};});
+      console.error('Worker error:',err);
+      return false;
+    }
+    return true;
+  }catch(e){
+    console.error('Worker fetch error:',e);
+    return false;
+  }
 }
 init();
 </script>
