@@ -200,6 +200,11 @@ iframe{flex:1;border:none;background:#fff;}
   .audit-original{display:none!important;}
   .audit-checkbox{width:13px;height:13px;border:1.5px solid #999;border-radius:2px;}
 }
+
+/* GITHUB SYNC */
+.sync-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;cursor:pointer;transition:all .15s;}
+.sync-btn:hover{border-color:var(--green);color:var(--green);}
+.badge-github{background:rgba(76,175,80,.12);color:var(--green);border:1px solid rgba(76,175,80,.3);}
 </style>
 </head>
 <body>
@@ -211,6 +216,7 @@ iframe{flex:1;border:none;background:#fff;}
     <div class="header-right">
       <div class="stats">ITEMS: <b id="statTotal">0</b> &nbsp;|&nbsp; SHOWING: <b id="statShowing">0</b></div>
       <button class="audit-btn" onclick="openPinModal()">&#128203; Audit Mode</button>
+      <button class="sync-btn" onclick="openTokenModal()" title="GitHub Sync Settings">&#9881; Sync</button>
       <button class="help-btn" onclick="openHelp()" title="Help">?</button>
     </div>
   </header>
@@ -439,10 +445,14 @@ const BUILT_IN_PDFS = {"raysLabel": "data:application/pdf;base64,JVBERi0xLjcKJcf
 const BUILT_IN_LISTINGS = [{"name": "Double 4\" Steel Lap Siding", "sku": "1550114", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "2x4 Fire Retardant - Interior", "sku": "1141010", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "Georgia-Pacific DryGuard 3/4\"", "sku": "1242878", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "9' Lifetime Steel Post - Black", "sku": "1715338", "type": "label", "pdf": "raysLabel", "page": 0}, {"name": "CedarBoards Single 12\" x 10' Board", "sku": "1480844", "type": "label", "pdf": "raysLabel", "page": 1}, {"name": "Cut to Length Designer Pro-Rib Matt $22", "sku": "1558398", "type": "label", "pdf": "raysLabel", "page": 1}, {"name": "UltraDeck Fusion Low-Maintenance Composite", "sku": "1000054", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "12x8x16 Split Face Construction Block", "sku": "1796300", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "ABTCO 12'6\" Snap-On Vinyl Crown Moulding", "sku": "1461622", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "12'6\" Double 4\" Steel Lap Siding", "sku": "1550125", "type": "label", "pdf": "raysLabel", "page": 2}, {"name": "Cut to Length Designer Pro-Rib Matt $13", "sku": "1558398", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "4x10 #1 Better S4S Douglas Fir Timber", "sku": "1022696", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "Yardworks Richmond 5x5 White Ash Post Cap", "sku": "1728682", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "Novik 20-1/4\" x 45-3/8\" Stacked Stone", "sku": "1467859", "type": "label", "pdf": "raysLabel", "page": 3}, {"name": "8' Black Plastic Lumber", "sku": "1129978", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "TimberCrest Single 7\" x 12'4\" Plank", "sku": "1462522", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "LP SmartSide 3/8 x 16' Brushed Panel", "sku": "1422234", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "Novik Single 7\" x 8' Cedar Shake Panel", "sku": "1469918", "type": "label", "pdf": "raysLabel", "page": 4}, {"name": "Restoration Smooth Double 4-1/2\"", "sku": "148-1782", "type": "bintag", "pdf": "raysBintags", "page": 0}, {"name": "Williams Preassembled Aluminum Railing", "sku": "171-7809", "type": "bintag", "pdf": "raysBintags", "page": 0}, {"name": "Spectra Metals 3\"x4\" A-Style Aluminum", "sku": "158-8136", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Pure Glory 44\"x29\" Cast Iron Railing", "sku": "171-7551", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Williams Preassembled Powder-Coated 171-7815", "sku": "171-7815", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Williams 3x3x42\" Aluminum Deck Post", "sku": "171-7829", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "10' Steel Sliding Door Track Cover", "sku": "155-5842", "type": "bintag", "pdf": "raysBintags", "page": 1}, {"name": "Suncast 1-1/2\"H x 15\"x15\" Corner Shelf", "sku": "193-2826", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9258", "sku": "112-9258", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Composite 9260", "sku": "112-9260", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic Composite Post Sleeve 9208", "sku": "112-9208", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Williams Preassembled Powder-Coated 171-7803", "sku": "171-7803", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9269", "sku": "112-9269", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Williams Preassembled Powder-Coated 171-7816", "sku": "171-7816", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "Gutter Guards", "sku": "100-0054", "type": "bintag", "pdf": "raysBintags", "page": 2}, {"name": "DuraMax YardMate Plus 5x5-1/2x6 Shed", "sku": "193-7142", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck 6'x34\" Black Stair Steel Rod", "sku": "171-0954", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck 6'x34\" Black Level Steel Horiz.", "sku": "171-0950", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic Composite Post Sleeve 9136", "sku": "112-9136", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic Composite Post Sleeve 9125", "sku": "112-9125", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "UltraDeck Classic 36\"x6' Composite 9239", "sku": "112-9239", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "Sequoia Select Double 4-1/2\" x 12'1\"", "sku": "148-9151", "type": "bintag", "pdf": "raysBintags", "page": 3}, {"name": "Dixie-Pacific DuraCast Tuscan Column", "sku": "185-4419", "type": "bintag", "pdf": "raysBintags", "page": 5}, {"name": "UltraDeck Rosewood 8' Composite Railing", "sku": "112-9160", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "UltraDeck Classic 36\"x6' Preassembled 9247", "sku": "112-9247", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "UltraDeck Classic Composite Post Sleeve 9174", "sku": "112-9174", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "12' Residential Rake Trim", "sku": "156-4040", "type": "bintag", "pdf": "raysBintags_2", "page": 0}, {"name": "Spectra Metals 3\"x4\" B-Style Aluminum", "sku": "158-8139", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "Deckorators Newport Cedar High Pyramid", "sku": "100-0054", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "TimberCrest Premium Double 4\" x 1", "sku": "146-2948", "type": "bintag", "pdf": "raysBintags_3", "page": 0}, {"name": "UltraDeck Classic Composite Post Sleeve 9184", "sku": "112-9184", "type": "bintag", "pdf": "raysBintags_3", "page": 2}, {"name": "8' Plastic Lattice H Channel", "sku": "112-4708", "type": "bintag", "pdf": "raysBintags_3", "page": 2}];
 
 var allListingsCache = [];
-function getAllListings() {
-  var built = BUILT_IN_LISTINGS.map(function(l,i){ return Object.assign({},l,{_idx:i,uploaded:false}); });
-  var up = uploadedListings.map(function(l,i){ return Object.assign({},l,{_idx:100000+i,uploaded:true}); });
-  allListingsCache = built.concat(up);
+var githubListings=[];
+var GITHUB_REPO='cashtillo/Clearancelist';
+var GITHUB_API='https://api.github.com';
+function getAllListings(){
+  var built=BUILT_IN_LISTINGS.map(function(l,i){return Object.assign({},l,{_idx:i,uploaded:false});});
+  var gh=githubListings.map(function(l,i){return Object.assign({},l,{_idx:200000+i,uploaded:false,fromGitHub:true});});
+  var up=uploadedListings.map(function(l,i){return Object.assign({},l,{_idx:100000+i,uploaded:true});});
+  allListingsCache=built.concat(gh).concat(up);
   return allListingsCache;
 }
 function getByIdx(idx) { return allListingsCache.find(function(l){return l._idx===idx;}); }
@@ -475,6 +485,7 @@ async function init(){
   await dbReady;
   uploadedListings=await idbGetAll('listings');
   render();
+  fetchGitHubListings();
 }
 
 /* DRAG & DROP */
@@ -529,17 +540,22 @@ async function saveUpload(){
   var id='upload_'+Date.now();
   var reader=new FileReader();
   reader.onload=async function(e){
-    await idbPut('pdfs',{id:id,data:e.target.result});
+    var pdfDataUrl=e.target.result;
+    await idbPut('pdfs',{id:id,data:pdfDataUrl});
     await idbPut('listings',{id:id,name:name,sku:sku,type:type,pdf:id,page:0,uploaded:true});
     uploadedListings=await idbGetAll('listings');
     document.getElementById('tagModal').classList.remove('open');
     document.getElementById('fileInput').value='';
     pendingFile=null;
     render();
-    // Show success screen
-    document.getElementById('successItem').innerHTML=
-      '<div class="si-name">'+name+'</div><div class="si-sku">SKU: '+sku+'</div>';
+    document.getElementById('successItem').innerHTML='<div class="si-name">'+name+'</div><div class="si-sku">SKU: '+sku+'</div>';
     document.getElementById('successModal').classList.add('open');
+    if(getGHToken()){
+      showToast('Saved — syncing to GitHub...');
+      pushToGitHub({id:id,name:name,sku:sku,type:type},pdfDataUrl).then(function(ok){
+        if(ok){showToast('Synced! Available on all devices ✓');fetchGitHubListings();}
+      });
+    }
   };
   reader.readAsDataURL(pendingFile);
 }
@@ -650,7 +666,8 @@ function render(){
       '<div class="card-badges">' +
         '<div class="badge '+(l.type==='label'?'badge-label':'badge-bintag')+'">'+(l.type==='label'?'&#127991; LABEL':'&#128722; BIN TAG')+'</div>' +
         (isSold?'<div class="badge badge-soldout">&#128683; SOLD OUT</div>':'') +
-        (l.uploaded?'<div class="badge badge-uploaded">&#8679; UPLOADED</div>':'') +
+        (l.uploaded?'<div class="badge badge-uploaded">&#8679; UPLOADED</div>':'') + +
+        (l.fromGitHub?'<div class="badge badge-github">&#9729; SYNCED</div>':'') +
       '</div>' +
       '<div class="card-name">'+l.name+'</div>' +
       '<div class="card-sku">SKU: '+l.sku+'</div>' +
@@ -694,7 +711,13 @@ async function openViewer(idx){
   var l=getByIdx(idx);
   if(!l)return;
   var src;
-  if(l.uploaded){
+  if(l.fromGitHub&&l.pdfId){
+    showToast('Loading PDF...');
+    try{
+      var pdfBase64=await fetch('https://cashtillo.github.io/Clearancelist/pdfs/'+l.pdfId+'.b64?t='+Date.now()).then(function(r){return r.text();});
+      src='data:application/pdf;base64,'+pdfBase64.trim();
+    }catch(e){showToast('Could not load PDF',true);return;}
+  }else if(l.uploaded){
     var stored=await idbGet('pdfs',l.id);
     if(!stored){showToast('PDF not found',true);return;}
     src=stored.data+'#page='+(l.page+1);
@@ -721,7 +744,84 @@ function showToast(msg,err){
   t.textContent=msg;t.style.background=err?'#e8441a':'#f5a623';t.style.color=err?'#fff':'#000';
   t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);
 }
+
+/* GITHUB SYNC FUNCTIONS */
+function getGHToken(){return localStorage.getItem('gh_pat')||'';}
+function setGHToken(t){if(t)localStorage.setItem('gh_pat',t);else localStorage.removeItem('gh_pat');}
+function openTokenModal(){
+  document.getElementById('ghTokenInput').value=getGHToken();
+  var st=document.getElementById('ghTokenStatus');
+  if(getGHToken()){st.textContent='Token set ✓ — uploads sync automatically.';st.style.color='var(--green)';}
+  else{st.textContent='No token set — uploads save on this device only.';st.style.color='var(--muted)';}
+  document.getElementById('tokenModal').classList.add('open');
+  setTimeout(function(){document.getElementById('ghTokenInput').focus();},100);
+}
+function closeTokenModal(){document.getElementById('tokenModal').classList.remove('open');}
+function saveGHToken(){
+  var t=document.getElementById('ghTokenInput').value.trim();
+  setGHToken(t);closeTokenModal();
+  showToast(t?'Token saved — uploads will now sync ✓':'Token cleared');
+}
+async function fetchGitHubListings(){
+  try{
+    var r=await fetch('https://cashtillo.github.io/Clearancelist/listings.json?t='+Date.now());
+    if(!r.ok)return;
+    var data=await r.json();
+    githubListings=(data.listings||[]).filter(function(l){
+      return !BUILT_IN_LISTINGS.some(function(b){return b.sku===l.sku;});
+    });
+    allListingsCache=[];render();
+  }catch(e){console.log('No GitHub listings file yet');}
+}
+async function pushToGitHub(listing,pdfDataUrl){
+  var token=getGHToken();
+  if(!token)return false;
+  try{
+    var headers={'Authorization':'token '+token,'Content-Type':'application/json'};
+    var getRes=await fetch(GITHUB_API+'/repos/'+GITHUB_REPO+'/contents/listings.json',{headers:headers});
+    var sha=null,currentData={listings:[]};
+    if(getRes.status===200){
+      var fd=await getRes.json();sha=fd.sha;
+      try{currentData=JSON.parse(atob(fd.content.replace(/\s/g,'')));}catch(e){}
+    }
+    if(!currentData.listings)currentData.listings=[];
+    currentData.listings.push({id:listing.id,name:listing.name,sku:listing.sku,type:listing.type,pdfId:listing.id});
+    var lb={message:'Add listing: '+listing.name,content:btoa(unescape(encodeURIComponent(JSON.stringify(currentData,null,2))))};
+    if(sha)lb.sha=sha;
+    var pr=await fetch(GITHUB_API+'/repos/'+GITHUB_REPO+'/contents/listings.json',{method:'PUT',headers:headers,body:JSON.stringify(lb)});
+    if(!pr.ok)throw new Error('Update failed: '+pr.status);
+    if(pdfDataUrl){
+      var pb64=pdfDataUrl.split(',')[1].replace(/\s/g,'');
+      await fetch(GITHUB_API+'/repos/'+GITHUB_REPO+'/contents/pdfs/'+listing.id+'.b64',{
+        method:'PUT',headers:headers,
+        body:JSON.stringify({message:'Add PDF: '+listing.name,content:btoa(pb64)})
+      });
+    }
+    return true;
+  }catch(e){
+    console.error('GitHub push error:',e);
+    showToast('Sync failed — saved locally. Check your token.',true);
+    return false;
+  }
+}
 init();
 </script>
+<!-- GITHUB TOKEN MODAL -->
+<div class="modal-bg" id="tokenModal">
+  <div class="modal" style="width:420px">
+    <h2>&#9881; GITHUB SYNC SETUP</h2>
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;">Enter your GitHub Personal Access Token so new PDF uploads automatically sync to all devices. Saved only in this browser.</p>
+    <div class="form-group">
+      <label>GITHUB TOKEN</label>
+      <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);line-height:1.5;">Get one at <b style="color:var(--accent)">github.com/settings/tokens</b> &rarr; Generate new token (classic) &rarr; tick <b style="color:var(--accent)">repo</b> &rarr; paste here.</p>
+    <div id="ghTokenStatus" style="font-size:.72rem;padding:4px 0;min-height:1.2em;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTokenModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGHToken()">&#128190; Save Token</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
