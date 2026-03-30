@@ -348,47 +348,140 @@ const BUILT_IN_LISTINGS=[{"name": "Double 4\" Steel Lap Siding", "sku": "1550114
 const AUDIT_PDF_ORDER=['raysBintags','raysBintags_2','raysBintags_3','raysLabel'];
 
 
+async function extractAndParse(arrayBuffer) {
+  var text = await extractPDFTextAsync(arrayBuffer);
+  return parseRaysListPDF(text);
+}
+
+async function extractPDFTextAsync(arrayBuffer) {
+  var bytes = new Uint8Array(arrayBuffer);
+  var str = '';
+  for (var i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+  var text = extractTJText(str);
+  if (text.trim().length > 20) return text;
+  return await extractCompressedText(bytes);
+}
+
+function extractTJText(str) {
+  var text = '';
+  var btBlocks = str.match(/BT[\s\S]*?ET/g) || [];
+  btBlocks.forEach(function(block) {
+    var tjArrays = block.match(/\[[^\]]*\]\s*TJ/g) || [];
+    tjArrays.forEach(function(m) {
+      var parts = m.match(/\(([^)]*)\)/g) || [];
+      var chunk = parts.map(function(p){ return p.slice(1,-1); }).join('');
+      if (chunk.trim()) text += chunk + '\n';
+    });
+    var tjSimple = block.match(/\(([^)]*)\)\s*(?:Tj|')/g) || [];
+    tjSimple.forEach(function(m) {
+      var inner = m.match(/\(([^)]*)\)/);
+      if (inner && inner[1].trim()) text += inner[1] + '\n';
+    });
+  });
+  return text;
+}
+
+async function extractCompressedText(bytes) {
+  var text = '';
+  var s = '';
+  for (var j = 0; j < bytes.length; j++) s += String.fromCharCode(bytes[j]);
+  var pos = 0;
+  while (pos < s.length) {
+    var fdIdx = s.indexOf('FlateDecode', pos);
+    if (fdIdx === -1) break;
+    var streamStart = s.indexOf('stream', fdIdx);
+    if (streamStart === -1) break;
+    streamStart += 6;
+    if (s[streamStart] === '\r') streamStart++;
+    if (s[streamStart] === '\n') streamStart++;
+    var streamEnd = s.indexOf('endstream', streamStart);
+    if (streamEnd === -1) break;
+    var streamBytes = bytes.slice(streamStart, streamEnd);
+    var decoded = await tryDecompress(streamBytes);
+    if (decoded) text += extractTJText(decoded);
+    pos = streamEnd + 9;
+  }
+  return text;
+}
+
+async function tryDecompress(streamBytes) {
+  var modes = ['deflate-raw', 'deflate'];
+  for (var i = 0; i < modes.length; i++) {
+    try {
+      var ds = new DecompressionStream(modes[i]);
+      var writer = ds.writable.getWriter();
+      var reader = ds.readable.getReader();
+      writer.write(streamBytes);
+      writer.close();
+      var chunks = [], done = false;
+      while (!done) {
+        var r = await reader.read();
+        if (r.done) { done = true; } else { chunks.push(r.value); }
+      }
+      var total = chunks.reduce(function(a,c){ return a+c.length; }, 0);
+      var combined = new Uint8Array(total);
+      var off = 0;
+      chunks.forEach(function(c){ combined.set(c,off); off+=c.length; });
+      var out = '';
+      for (var k = 0; k < combined.length; k++) out += String.fromCharCode(combined[k]);
+      return out;
+    } catch(e) {}
+  }
+  return null;
+}
+
 function parseRaysListPDF(text) {
   text = text.replace(/&reg;/gi,'').replace(/&amp;/gi,'&').replace(/&trade;/gi,'').replace(/&nbsp;/gi,' ');
-  var listings = []; var seenSkus = {};
-  var blocks = text.split(/CLEARANCE\s*&\s*BARGAINS/i);
+  // Add spaces between camelCase/concatenated words (ElevationAluminum -> Elevation Aluminum)
+  text = text.replace(/([a-z])([A-Z])/g, '$1 $2');
+  var listings = [], seenSkus = {};
+  var blocks = text.split(/CLEARANCE\s*[&]\s*BARGAINS/i);
   blocks.forEach(function(block) {
     block = block.trim(); if (!block) return;
-    var lines = block.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+    var lines = block.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
     if (lines.length < 3) return;
     try {
-      var was,now,unit,sku,name,type;
-      var wasMatchBT = block.match(/WAS:\s*([\d.]+)/i);
-      var nowMatchBT = block.match(/NOW\s+(\d+)\s+(EACH|SQRE|Each|SQFT)/i);
-      var wasMatchLB = block.match(/WAS:\s*\$?([\d.]+)/i);
-      var nowMatchLB = block.match(/NOW:\s*\$?([\d.]+)\s*(EACH|SQRE|Each|SQFT)/i);
-      if (nowMatchBT) {
-        type='bintag'; was=parseFloat(wasMatchBT[1]); now=parseInt(nowMatchBT[1])/100; unit=nowMatchBT[2].toUpperCase();
-        var skuMatch=block.match(/\b(\d{3}-\d{4})\b/)||block.match(/\b(\d{7})\b/); if(!skuMatch)return; sku=skuMatch[1];
-        var ni=-1; for(var i=0;i<lines.length;i++){if(/^NOW\s+\d+/i.test(lines[i])){ni=i;break;}} if(ni<0||ni+1>=lines.length)return; name=lines[ni+1];
-      } else if (nowMatchLB) {
-        type='label'; was=parseFloat(wasMatchLB[1]); now=parseFloat(nowMatchLB[1]); unit=nowMatchLB[2].toUpperCase();
-        var skuM=block.match(/\b(\d{7})\b/); if(!skuM)return; sku=skuM[1];
-        var inN=false,np=[]; for(var i=0;i<lines.length;i++){if(/NOW:/i.test(lines[i])){inN=true;continue;} if(/^\d{7}$/.test(lines[i]))break; if(inN&&!/WAS:|Bargain Area/i.test(lines[i]))np.push(lines[i]);} name=np.join(' ').trim();
+      var was, now, unit, sku, name, type;
+      var wasMatch = block.match(/WAS:\s*\$?([\d.]+)/i);
+      if (!wasMatch) return;
+      was = parseFloat(wasMatch[1]);
+      var nowOneLine = block.match(/NOW\s+(\d+)\s+(EACH|SQRE|Each|SQFT)/i);
+      var nowSplit = block.match(/NOW\s*\n\s*(\d+)\s*\n\s*(\d{2})\s*\n\s*(EACH|SQRE|Each|SQFT)/i);
+      var nowLabel = block.match(/NOW:\s*\$?([\d.]+)\s*(EACH|SQRE|Each|SQFT)/i);
+      if (nowOneLine) {
+        type='bintag'; now=parseInt(nowOneLine[1])/100; unit=nowOneLine[2].toUpperCase();
+      } else if (nowSplit) {
+        type='bintag'; now=parseFloat(nowSplit[1]+'.'+nowSplit[2]); unit=nowSplit[3].toUpperCase();
+      } else if (nowLabel) {
+        type='label'; now=parseFloat(nowLabel[1]); unit=nowLabel[2].toUpperCase();
       } else return;
-      if(!sku||!name)return; if(seenSkus[sku])return; seenSkus[sku]=true;
+      var skuMatch = block.match(/\b(\d{3}-\d{4})\b/) || block.match(/\b(\d{7})\b/);
+      if (!skuMatch) return;
+      sku = skuMatch[1];
+      if (seenSkus[sku]) return;
+      seenSkus[sku] = true;
+      if (type === 'bintag') {
+        var ni = -1;
+        for (var i = 0; i < lines.length; i++) { if (/^NOW/i.test(lines[i])) { ni=i; break; } }
+        var nameIdx = ni + 1;
+        while (nameIdx < lines.length && /^\d{2}$/.test(lines[nameIdx])) nameIdx++;
+        while (nameIdx < lines.length && /^(EACH|SQRE|SQFT)$/i.test(lines[nameIdx])) nameIdx++;
+        if (nameIdx >= lines.length) return;
+        name = lines[nameIdx];
+      } else {
+        var inN = false, np = [];
+        for (var i = 0; i < lines.length; i++) {
+          if (/NOW:/i.test(lines[i])) { inN=true; continue; }
+          if (/^\d{7}$/.test(lines[i])) break;
+          if (inN && !/WAS:|Bargain Area/i.test(lines[i])) np.push(lines[i]);
+        }
+        name = np.join(' ').trim();
+      }
+      if (!name || !sku) return;
       listings.push({name:name,sku:sku,was:'$'+was.toFixed(2),now:'$'+now.toFixed(2),unit:unit,type:type});
     } catch(e) {}
   });
   return listings;
-}
-function extractPDFText(arrayBuffer) {
-  var bytes=new Uint8Array(arrayBuffer),str='';
-  for(var i=0;i<bytes.length;i++)str+=String.fromCharCode(bytes[i]);
-  var text='';
-  var btBlocks=str.match(/BT[\s\S]*?ET/g)||[];
-  btBlocks.forEach(function(block){
-    var tjM=block.match(/\(([^)]*)\)\s*(?:Tj|')/g)||[];
-    tjM.forEach(function(m){var inn=m.match(/\(([^)]*)\)/);if(inn)text+=inn[1]+'\n';});
-    var tjA=block.match(/\[([^\]]*)\]\s*TJ/g)||[];
-    tjA.forEach(function(m){var parts=m.match(/\(([^)]*)\)/g)||[];parts.forEach(function(p){text+=p.slice(1,-1);});text+='\n';});
-  });
-  return text.replace(/\\n/g,'\n').replace(/\\r/g,'\n').replace(/\\t/g,' ').replace(/\\\(/g,'(').replace(/\\\)/g,')').replace(/\\\\/g,'\\');
 }
 
 
@@ -522,9 +615,8 @@ function handleFile(file){
   if(!file||file.type!=='application/pdf'){showToast('Please upload a PDF file',true);return;}
   pendingFile=file;
   var reader=new FileReader();
-  reader.onload=function(e){
-    var text=extractPDFText(e.target.result);
-    var parsed=parseRaysListPDF(text);
+  reader.onload=async function(e){
+    var parsed=await extractAndParse(e.target.result);
     if(parsed&&parsed.length>0){pendingParsed=parsed;showParsePreview(file.name,parsed);}
     else{document.getElementById('tagFilename').textContent=file.name;document.getElementById('parseErrorMsg').style.display='block';document.getElementById('tagName').value='';document.getElementById('tagSku').value='';document.getElementById('tagModal').classList.add('open');setTimeout(function(){document.getElementById('tagName').focus();},100);}
   };
